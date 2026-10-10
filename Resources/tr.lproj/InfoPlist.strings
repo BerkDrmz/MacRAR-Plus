@@ -1,0 +1,5 @@
+"NSRemovableVolumesUsageDescription" = "Harici diskte seçtiğiniz arşivleri açmak, oluşturmak ve çıkarmak için erişim gerekir.";
+"NSNetworkVolumesUsageDescription" = "Ağ diskinde seçtiğiniz arşivleri açmak, oluşturmak ve çıkarmak için erişim gerekir.";
+"NSDocumentsFolderUsageDescription" = "Belgeler'de seçtiğiniz arşivleri açmak ve kaydetmek için erişim gerekir.";
+"NSDownloadsFolderUsageDescription" = "İndirilenler'de seçtiğiniz arşivleri açmak ve çıkarmak için erişim gerekir.";
+"NSDesktopFolderUsageDescription" = "Masaüstü'nde seçtiğiniz arşivleri açmak ve kaydetmek için erişim gerekir.";

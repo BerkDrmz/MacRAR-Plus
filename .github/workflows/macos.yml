@@ -1,0 +1,32 @@
+name: macOS verification
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Apple Silicon runner
+        run: test "$(uname -m)" = arm64
+      - name: Fetch checksum-pinned official engines
+        run: ./fetch-tools.sh
+      - name: Run archive regression checks
+        run: ./test.sh
+      - name: Build optimized application
+        run: ./build.sh
+      - name: Verify package signature
+        run: codesign --verify --deep --strict --verbose=2 "build/MacRAR Plus.app"
+      - name: Measure archive preflight and tree construction
+        run: ./benchmark.sh
