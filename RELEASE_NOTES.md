@@ -1,3 +1,7 @@
+# MacRAR Plus 2.3.2
+
+Splits the archive map into smaller SwiftUI view properties and isolates string expressions, fixing the older Swift compiler's type-checking timeout on the GitHub macOS 14 runner. Keeps the same interface and archive behavior as 2.3.1. Build 13.
+
 # MacRAR Plus 2.3.1
 
 Removes unused category-count scans and caches workspace summaries per listing. Selection coverage now follows parent links rather than comparing every pair of selected paths. Filter results reuse their sort order; clearing a filter does not re-sort an unchanged tree. Cheap metadata conditions run before localized text matching. Preview navigation reuses its candidate list, discards results from an outdated listing, and file icons use an evictable cache with a 128-object count limit.

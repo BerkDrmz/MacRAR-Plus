@@ -1,12 +1,12 @@
 # MacRAR Plus
 
-**2.3.1:** [Yeni özellikler ve doğrulama notları](docs/plus/2.3.1.tr.md). Daha sade ana ekran, Önizle/Sıkıştır/Çıkart işlemleri, isteğe bağlı dosya bilgileri ve kolay sıkıştırma penceresi. Arşiv haritası, gelişmiş arama, dosya listesi aktarımı ve Finder eylemleri kullanılmaya devam eder.
+**2.3.2:** [Yeni özellikler ve doğrulama notları](docs/plus/2.3.2.tr.md). macOS 14 ortamındaki eski Swift derleyicisiyle uyumluluk düzeltmesi. Daha sade ana ekran, Önizle/Sıkıştır/Çıkart işlemleri, isteğe bağlı dosya bilgileri ve kolay sıkıştırma penceresi. Arşiv haritası, gelişmiş arama, dosya listesi aktarımı ve Finder eylemleri kullanılmaya devam eder.
 
 MacRAR'ın arşiv motorunu koruyan, Mac için geliştirilmiş bir sürüm. Swift/AppKit dosya listesi, SwiftUI çalışma alanı ve yerel Quick Look önizlemesi kullanır. Dosyalar ağ üzerinden gönderilmez.
 
 MacRAR Plus geliştiricisi: [BerkDrmz](https://github.com/BerkDrmz).
 
-Apple Silicon/macOS 13+ için **2.3.1** sürümü: [ZIP/DMG indir](https://github.com/BerkDrmz/MacRAR-Plus/releases/tag/v2.3.1). `./package.sh` ile aynı paket biçimleri `dist/` altında hazırlanır.
+Apple Silicon/macOS 13+ için **2.3.2** sürümü: [ZIP/DMG indir](https://github.com/BerkDrmz/MacRAR-Plus/releases/tag/v2.3.2). `./package.sh` ile aynı paket biçimleri `dist/` altında hazırlanır.
 
 Özgün kaynak kodun telif bildirimleri ve MIT lisansı [LICENSE](LICENSE) dosyasında korunur.
 

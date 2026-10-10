@@ -87,57 +87,93 @@ struct ArchiveMapView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(P("Arşiv haritası", "Archive map")).font(.title2.weight(.semibold))
-                Text(name).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
-            }
-            HStack(spacing: 32) {
-                statistic(P("Dosya", "Files"), "\(map.fileCount)")
-                statistic(P("Açılmış boyut", "Uncompressed size"), Fmt.size(map.totalSize))
-                statistic(P("Boş dosya", "Empty files"), "\(map.emptyCount)")
-                Spacer(minLength: 0)
-            }
-            Picker(P("Analiz bölümü", "Analysis section"), selection: $tab) {
-                Text(P("Büyük dosyalar", "Largest files")).tag(0)
-                Text(P("Dosya türleri", "File types")).tag(1)
-                Text(P("Tekrar adayları", "Duplicate candidates")).tag(2)
-            }.pickerStyle(.segmented)
-            if tab == 0 {
-                Text(P("En büyük 50 dosya. Listede bul ile dosyaya geç.", "The 50 largest files. Locate jumps to the file in the archive.")).font(.callout).foregroundStyle(.secondary)
-                List(map.largest) { file in fileRow(file) }
-                if map.fileCount == 0 { Text(P("Bu arşivde dosya yok.", "This archive contains no files.")).foregroundStyle(.secondary) }
-            } else if tab == 1 {
-                Text(P("En çok alan kaplayan 50 tür; boyutlar açılmış içerik boyutudur.", "The 50 largest types by uncompressed content size.")).font(.callout).foregroundStyle(.secondary)
-                List(map.types) { type in
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
-                            Text(type.ext.isEmpty ? P("Uzantısız", "No extension") : "." + type.ext).fontWeight(.medium)
-                            Spacer()
-                            Text("\(type.count) " + P("dosya", "files")).foregroundStyle(.secondary)
-                            Text(Fmt.size(type.size)).monospacedDigit().frame(width: 90, alignment: .trailing)
-                        }
-                        ProgressView(value: map.totalSize == 0 ? 0 : Double(type.size) / Double(map.totalSize))
-                            .accessibilityLabel((type.ext.isEmpty ? P("Uzantısız", "No extension") : type.ext) + " · " + Fmt.size(type.size))
-                    }.padding(.vertical, 6)
-                }
-            } else {
-                Text(P("Aynı boyut ve CRC32, aynı içeriği garanti etmez. Dosyalar otomatik silinmez. CRC’si olmayan ve boş dosyalar karşılaştırmaya alınmaz.", "Matching size and CRC32 do not guarantee identical contents. Files are never deleted automatically. Empty files and files without CRC are excluded.")).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                Text("\(map.candidateGroupCount) " + P("aday grubu", "candidate groups") + " · " + Fmt.size(map.candidateAdditionalBytes) + " " + P("ek açılmış boyut", "additional uncompressed bytes")).fontWeight(.medium)
-                List {
-                    ForEach(map.candidates) { group in
-                        Section(header: Text("CRC32 \(group.crc) · \(group.count) " + P("dosya", "files") + " · " + Fmt.size(group.size) + P(" / dosya", " / file"))) {
-                            ForEach(group.files) { file in fileRow(file) }
-                            if group.count > group.files.count {
-                                Text(P("Bu grupta ilk 20 dosya gösteriliyor.", "Showing the first 20 files in this group.")).foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                }
-                if map.candidateGroupCount == 0 { Text(P("Metadata’da tekrar adayı bulunmadı.", "No duplicate candidates found in metadata.")).foregroundStyle(.secondary) }
-            }
+            header
+            sectionPicker
+            sectionContent
             Text(P("Arşiv çıkarılmadan hazırlanır. İlk 50 grup/tür gösterilir. Değişikliklerden sonra haritayı yeniden aç.", "Prepared without extraction. Shows the first 50 groups/types. Reopen after archive changes.")).font(.caption).foregroundStyle(.secondary)
         }.padding(20).frame(minWidth: 560, minHeight: 440)
             .background(Color(nsColor: .windowBackgroundColor))
+    }
+
+    @ViewBuilder private var header: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(P("Arşiv haritası", "Archive map")).font(.title2.weight(.semibold))
+            Text(name).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+        }
+        HStack(spacing: 32) {
+            statistic(P("Dosya", "Files"), "\(map.fileCount)")
+            statistic(P("Açılmış boyut", "Uncompressed size"), Fmt.size(map.totalSize))
+            statistic(P("Boş dosya", "Empty files"), "\(map.emptyCount)")
+            Spacer(minLength: 0)
+        }
+    }
+
+    private var sectionPicker: some View {
+        Picker(P("Analiz bölümü", "Analysis section"), selection: $tab) {
+            Text(P("Büyük dosyalar", "Largest files")).tag(0)
+            Text(P("Dosya türleri", "File types")).tag(1)
+            Text(P("Tekrar adayları", "Duplicate candidates")).tag(2)
+        }.pickerStyle(.segmented)
+    }
+
+    @ViewBuilder private var sectionContent: some View {
+        if tab == 0 {
+            largestFiles
+        } else if tab == 1 {
+            fileTypes
+        } else {
+            duplicateCandidates
+        }
+    }
+
+    @ViewBuilder private var largestFiles: some View {
+        Text(P("En büyük 50 dosya. Listede bul ile dosyaya geç.", "The 50 largest files. Locate jumps to the file in the archive.")).font(.callout).foregroundStyle(.secondary)
+        List(map.largest) { file in fileRow(file) }
+        if map.fileCount == 0 { Text(P("Bu arşivde dosya yok.", "This archive contains no files.")).foregroundStyle(.secondary) }
+    }
+
+    @ViewBuilder private var fileTypes: some View {
+        Text(P("En çok alan kaplayan 50 tür; boyutlar açılmış içerik boyutudur.", "The 50 largest types by uncompressed content size.")).font(.callout).foregroundStyle(.secondary)
+        List(map.types) { type in
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text(type.ext.isEmpty ? P("Uzantısız", "No extension") : "." + type.ext).fontWeight(.medium)
+                    Spacer()
+                    Text("\(type.count) " + P("dosya", "files")).foregroundStyle(.secondary)
+                    Text(Fmt.size(type.size)).monospacedDigit().frame(width: 90, alignment: .trailing)
+                }
+                ProgressView(value: map.totalSize == 0 ? 0 : Double(type.size) / Double(map.totalSize))
+                    .accessibilityLabel((type.ext.isEmpty ? P("Uzantısız", "No extension") : type.ext) + " · " + Fmt.size(type.size))
+            }.padding(.vertical, 6)
+        }
+    }
+
+    @ViewBuilder private var duplicateCandidates: some View {
+        Text(P("Aynı boyut ve CRC32, aynı içeriği garanti etmez. Dosyalar otomatik silinmez. CRC’si olmayan ve boş dosyalar karşılaştırmaya alınmaz.", "Matching size and CRC32 do not guarantee identical contents. Files are never deleted automatically. Empty files and files without CRC are excluded.")).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+        Text(candidateSummary).fontWeight(.medium)
+        List {
+            ForEach(map.candidates) { group in
+                Section(header: Text(candidateTitle(group))) {
+                    ForEach(group.files) { file in fileRow(file) }
+                    if group.count > group.files.count {
+                        Text(P("Bu grupta ilk 20 dosya gösteriliyor.", "Showing the first 20 files in this group.")).foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        if map.candidateGroupCount == 0 { Text(P("Metadata’da tekrar adayı bulunmadı.", "No duplicate candidates found in metadata.")).foregroundStyle(.secondary) }
+    }
+
+    private var candidateSummary: String {
+        let count = "\(map.candidateGroupCount) " + P("aday grubu", "candidate groups")
+        let size = Fmt.size(map.candidateAdditionalBytes) + " " + P("ek açılmış boyut", "additional uncompressed bytes")
+        return count + " · " + size
+    }
+
+    private func candidateTitle(_ group: ArchiveMap.Candidates) -> String {
+        let count = "CRC32 \(group.crc) · \(group.count) " + P("dosya", "files")
+        let size = Fmt.size(group.size) + P(" / dosya", " / file")
+        return count + " · " + size
     }
 
     private func statistic(_ title: String, _ value: String) -> some View {
